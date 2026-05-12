@@ -43,7 +43,11 @@ Ver contrato completo en [similarProducts.yaml](./similarProducts.yaml).
 ## Run locally
 
 ```bash
-./mvnw spring-boot:run
+# Sin acceso a Maven Central (red bloqueada): usar modo offline con la caché local
+mvn -f pom.xml spring-boot:run --offline
+
+# Con acceso a Maven Central
+mvn spring-boot:run
 ```
 
 La app arranca en el **puerto 5000**.
@@ -81,21 +85,19 @@ Ver resultados en: http://localhost:3000/d/Le2Ku9NMk/k6-performance-test
 ## Tests
 
 ```bash
-./mvnw test
+mvn test --offline
 ```
 
 Cubre con `@WebFluxTest` + `MockWebServer` todos los escenarios de error.
 
 ## Notas de configuración Maven
 
-El proyecto usa **Spring Boot 3.3.6** (la versión más reciente estable disponible en el momento del desarrollo).
+El proyecto usa **Spring Boot 3.3.6** (versión estable más reciente disponible en el momento del desarrollo).
 
-Maven Central tenía la IP bloqueada en el entorno de desarrollo, por lo que se configuró un mirror alternativo en `.mvn/settings.xml` apuntando a `repo.huaweicloud.com`, que replica el repositorio central. Para compilar o ejecutar el proyecto en un entorno sin esta restricción, el `settings.xml` puede ignorarse:
+Maven Central tenía la IP bloqueada en el entorno de desarrollo. La solución definitiva fue borrar los ficheros `_remote.repositories` de la caché local y usar el flag `--offline`, que permite compilar y ejecutar con los artefactos ya descargados sin necesidad de mirror ni acceso a red:
 
 ```bash
-# Con mirror (si Maven Central está bloqueado)
-mvn spring-boot:run -s .mvn/settings.xml
-
-# Sin mirror (entorno normal)
-mvn spring-boot:run
+mvn spring-boot:run --offline
 ```
+
+Si la red permite acceso a Maven Central, funciona también sin `--offline`. El fichero `.mvn/settings.xml` con el mirror de Huaweicloud queda como alternativa de red si fuese necesario en otro entorno.
