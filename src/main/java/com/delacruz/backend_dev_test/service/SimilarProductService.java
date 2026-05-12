@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -38,11 +39,15 @@ public class SimilarProductService {
                     }
                     log.error("Error al obtener detalle del producto {}: {}", productId, ex.getMessage());
                     return Mono.empty();
+                })
+                .onErrorResume(WebClientRequestException.class, ex -> {
+                    log.warn("Timeout al obtener detalle del producto {}, se omite del resultado", productId);
+                    return Mono.empty();
                 });
     }
 
     public Flux<ProductDetail> getSimilarProducts(String productId) {
         return getSimilarIds(productId)
-                .flatMap(this::getProductDetail);
+                .flatMapSequential(this::getProductDetail);
     }
 }
