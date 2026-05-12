@@ -64,10 +64,27 @@ Ver resultados en: http://localhost:3000/d/Le2Ku9NMk/k6-performance-test
 
 ## Decisiones técnicas
 
-- **WebFlux + flatMap** para paralelizar las llamadas de detalle por cada producto similar
-- Si un producto individual falla (404 o timeout), se omite sin romper el flujo principal
+- **WebFlux + flatMapSequential** para paralelizar las llamadas de detalle por cada producto similar preservando el orden de similitud
+- Si un producto individual falla (404, 500 o timeout), se omite sin romper el flujo principal
 - URL base del mock externalizada en `application.properties`
 - Manejo global de errores con `@ControllerAdvice`
+
+## Comportamiento ante errores
+
+| Escenario | Respuesta |
+|---|---|
+| Producto principal no existe (`/similarids` → 404) | `404 Not Found` |
+| Producto individual falla (404 o 500) | Se omite del resultado, el resto se devuelve |
+| Producto individual lento (timeout) | Se omite del resultado, el resto se devuelve |
+| Timeout de conexión con el mock | `504 Gateway Timeout` |
+
+## Tests
+
+```bash
+./mvnw test
+```
+
+Cubre con `@WebFluxTest` + `MockWebServer` todos los escenarios de error.
 
 ## Notas de configuración Maven
 
