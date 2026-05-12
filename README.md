@@ -66,5 +66,19 @@ Ver resultados en: http://localhost:3000/d/Le2Ku9NMk/k6-performance-test
 
 - **WebFlux + flatMap** para paralelizar las llamadas de detalle por cada producto similar
 - Si un producto individual falla (404 o timeout), se omite sin romper el flujo principal
-- URL base del mock externalizada en `application.yml`
+- URL base del mock externalizada en `application.properties`
 - Manejo global de errores con `@ControllerAdvice`
+
+## Notas de configuración Maven
+
+El proyecto usa **Spring Boot 3.3.6** (la versión más reciente estable disponible en el momento del desarrollo).
+
+Maven Central tenía la IP bloqueada en el entorno de desarrollo, por lo que se configuró un mirror alternativo en `.mvn/settings.xml` apuntando a `repo.huaweicloud.com`, que replica el repositorio central. Para compilar o ejecutar el proyecto en un entorno sin esta restricción, el `settings.xml` puede ignorarse:
+
+```bash
+# Con mirror (si Maven Central está bloqueado)
+mvn spring-boot:run -s .mvn/settings.xml
+
+# Sin mirror (entorno normal)
+mvn spring-boot:run
+```
